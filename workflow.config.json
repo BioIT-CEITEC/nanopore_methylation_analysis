@@ -1,0 +1,35 @@
+{
+  "workflow_description": {
+    "name":"nanopore_methylation_analysis",
+    "version": 1.0,
+    "label":"Methylation analysis",
+    "type":"methylation_analysis",
+    "inputs":[
+      "aligned/{sample}/{sample}.bam",
+      "aligned/{sample}/{sample}_sorted.bam"
+    ],
+    "outputs":[
+      "aligned/{sample}/*",
+      "summary/{sample}/*",
+      "methylation/{sample}/*",
+      "qc_reports/*"
+    ],
+    "run_parameters": {
+      "cpu": 30,
+      "memory": 128
+    }
+  },
+  "general_params": [
+  "entity_name",
+  "sample_name"
+  ],
+  "requested_params": [
+    "organism", 
+    "assembly",
+    "5mC_methylation", 
+    "6mA_methylation"
+  ],
+  "gui_params" : {
+  }
+}
+
