@@ -6,13 +6,12 @@
     "type":"methylation_analysis",
     "inputs":[
       "aligned/{sample}/{sample}.bam",
-      "aligned/{sample}/{sample}_sorted.bam"
+      "aligned/{sample}/{sample}_sorted.bam", 
+      "methylation/{sample}/*"
     ],
     "outputs":[
       "aligned/{sample}/*",
-      "summary/{sample}/*",
-      "methylation/{sample}/*",
-      "qc_reports/*"
+      "methylation/{sample}/*"
     ],
     "run_parameters": {
       "cpu": 30,
