@@ -5,7 +5,6 @@
     "label":"Methylation analysis",
     "type":"methylation_analysis",
     "inputs":[
-      "aligned/{sample}/{sample}.bam",
       "aligned/{sample}/{sample}_sorted.bam", 
       "methylation/{sample}/*"
     ],
