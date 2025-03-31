@@ -43,7 +43,7 @@ rule create_100kb_windows:
         "envs/methylation_change.yaml"
     shell:
         """
-        cut -f1,2 {input.genome} > {output.chr_sizes}
+        cut -f1,2 {input.genome}.fai > {output.chr_sizes}
         bedtools makewindows -g {output} -w 100000 > {output.chr_windows}
         """
 
