@@ -4,3 +4,4 @@ channels:
 dependencies:
     - bamtools==2.5.2
     - samtools==1.17
+    - bedtools
