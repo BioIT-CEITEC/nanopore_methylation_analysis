@@ -8,7 +8,8 @@
       "methylation/{sample}/*"
     ],
     "outputs":[
-      "methylation/{sample}/*"
+      "methylation/{sample}/{sample}_filtered*",
+      "methylation/{sample}/{sample}*100kb.bed"
     ],
     "run_parameters": {
       "cpu": 30,
