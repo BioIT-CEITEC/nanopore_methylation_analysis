@@ -58,8 +58,8 @@ rule filter_modifications:
     shell:
         """
         awk '$4 == "a" && $11 > 5 && $12 >= 2' {input.bed} >  {output.mod6mA}
-        awk '$4 == "a" && $11 > 5 && $12 >= 2' {input.bed} >  {output.mod5hmC}
-        awk '$4 == "a" && $11 > 5 && $12 >= 2' {input.bed} >  {output.mod5mC}
+        awk '$4 == "h" && $11 > 5 && $12 >= 2' {input.bed} >  {output.mod5hmC}
+        awk '$4 == "c" && $11 > 5 && $12 >= 2' {input.bed} >  {output.mod5mC}
         """
 
 rule create_bedgraph:
