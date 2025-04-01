@@ -13,6 +13,8 @@ use rule * from BR as other_*
 config = BR.load_organism()
 sample_tab = BR.load_sample()
 
+print(sample_tab.sample_name)
+
 ##### Config processing #####
 # Folders
 #
@@ -29,8 +31,8 @@ if config["5mC_methylation"]:
 ##### Target rules #####
 rule all:
     input:
-        expand("methylation/{sample_name}/{sample_name}_motifs.tsv", sample_name = sample_tab.sample_name), 
-        expand('aligned/{sample_name}/{sample_name}_sorted.REF_chr1', sample_name = sample_tab.sample_name)
+        expand("methylation/{sample_name}/{sample_name}_6mA_100kb.bed", sample_name = sample_tab.sample_name)
+
 
 rule create_100kb_windows:
     input:
@@ -38,13 +40,12 @@ rule create_100kb_windows:
     output:
         chr_sizes = "methylation/chrom.sizes",
         chr_windows = "methylation/chr_windows.bed"
-
     conda: 
         "envs/methylation_change.yaml"
     shell:
         """
         cut -f1,2 {input.genome}.fai > {output.chr_sizes}
-        bedtools makewindows -g {output} -w 100000 > {output.chr_windows}
+        bedtools makewindows -g {output.chr_sizes} -w 100000 > {output.chr_windows}
         """
 
 rule filter_modifications:
@@ -61,7 +62,7 @@ rule filter_modifications:
         awk '$4 == "a" && $11 > 5 && $12 >= 2' {input.bed} >  {output.mod5mC}
         """
 
-rule filter_modifications:
+rule create_bedgraph:
     input:      
         mod6mA = "methylation/{sample_name}/{sample_name}_filtered_6mA.bed", 
         mod5hmC = "methylation/{sample_name}/{sample_name}_filtered_5hmC.bed", 
