@@ -21,16 +21,18 @@ print(sample_tab.sample_name)
 #sample_tab = pd.DataFrame.from_dict(config["samples"],orient="index")
 #reference_path = os.path.join(GLOBAL_REF_PATH,config["organism"], config["reference"], "seq", config["reference"] + ".fa")
 
-METHYLATION = []
+METHYLATION = {} # empty dictionary for methylations to work with
 
 if config["6mA_methylation"]:
-    METHYLATION.append("6mA")
+    METHYLATION["6mA"] = "a"
 if config["5mC_methylation"]:
-    METHYLATION.extend(["5mC", "5hmC"])
+    METHYLATION["5mC"] = "m"
+    METHYLATION["5hmC"] = "h"
 
 ##### Target rules #####
 rule all:
     input:
+        expand("methylation/{sample_name}/{sample_name}_filtered_{mod_name}.bed", mod_name = METHYLATION.keys()),
         expand("methylation/{sample_name}/{sample_name}_6mA_100kb.bed", sample_name = sample_tab.sample_name)
 
 
@@ -52,51 +54,36 @@ rule filter_modifications:
     input:      
         bed = "methylation/{sample_name}/{sample_name}_modkit.bed"
     output: 
-        mod6mA = "methylation/{sample_name}/{sample_name}_filtered_6mA.bed", 
-        mod5hmC = "methylation/{sample_name}/{sample_name}_filtered_5hmC.bed", 
-        mod5mC = "methylation/{sample_name}/{sample_name}_filtered_5mC.bed"
+        filtered = "methylation/{sample_name}/{sample_name}_filtered_{mod_name}.bed"
+    params: 
+        mod_char = lambda wildcards: METHYLATION[wildcards.mod_name]
     shell:
         """
-        awk '$4 == "a" && $11 > 5 && $12 >= 2' {input.bed} >  {output.mod6mA}
-        awk '$4 == "h" && $11 > 5 && $12 >= 2' {input.bed} >  {output.mod5hmC}
-        awk '$4 == "c" && $11 > 5 && $12 >= 2' {input.bed} >  {output.mod5mC}
+        awk '$4 == {params.mod_char} && $11 > 5 && $12 >= 2' {input.bed} >  {output.filtered}
         """
 
 rule create_bedgraph:
     input:      
-        mod6mA = "methylation/{sample_name}/{sample_name}_filtered_6mA.bed", 
-        mod5hmC = "methylation/{sample_name}/{sample_name}_filtered_5hmC.bed", 
-        mod5mC = "methylation/{sample_name}/{sample_name}_filtered_5mC.bed"
+        filtered = "methylation/{sample_name}/{sample_name}_filtered_{mod_name}.bed"
     output: 
-        mod6mA = "methylation/{sample_name}/{sample_name}_filtered_6mA.bedgraph", 
-        mod5hmC = "methylation/{sample_name}/{sample_name}_filtered_5hmC.bedgraph", 
-        mod5mC = "methylation/{sample_name}/{sample_name}_filtered_5mC.bedgraph"
+        bed_graph = "methylation/{sample_name}/{sample_name}_filtered_{mod_name}.bedgraph"
     shell:
         """
-        awk 'BEGIN {OFS="\t"} {print $1, $2, $3, $11}' {input.mod6mA} >  {output.mod6mA}
-        awk 'BEGIN {OFS="\t"} {print $1, $2, $3, $11}' {input.mod5hmC} >  {output.mod5hmC}
-        awk 'BEGIN {OFS="\t"} {print $1, $2, $3, $11}' {input.mod5mC} >  {output.mod5mC}
+        awk 'BEGIN {OFS="\t"} {print $1, $2, $3, $11}' {input.filtered} >  {output.bed_graph}
         """
 
 rule compute_methylation_in_100kbSwindows:
     input:      
-        mod6mA = "methylation/{sample_name}/{sample_name}_filtered_6mA.bed", 
-        mod5hmC = "methylation/{sample_name}/{sample_name}_filtered_5hmC.bed", 
-        mod5mC = "methylation/{sample_name}/{sample_name}_filtered_5mC.bed",
+        bed = "methylation/{sample_name}/{sample_name}_filtered_{mod_name}.bed",
         chr_windows = "methylation/chr_windows.bed"
     output:
-        mod6mA_100kb = "methylation/{sample_name}/{sample_name}_6mA_100kb.bed", 
-        mod5hmC_100kb = "methylation/{sample_name}/{sample_name}_5hmC_100kb.bed", 
-        mod5mC_100kb = "methylation/{sample_name}/{sample_name}_5mC_100kb.bed",
+        bed_100kb = "methylation/{sample_name}/{sample_name}_{mod_name}_100kb.bed"
     conda: 
         "envs/methylation_change.yaml"
     shell:
         """
-        bedtools map -a {input.chr_windows} -b  {input.mod6mA} -c 11 -o mean > {output.mod6mA_100kb}
-        bedtools map -a {input.chr_windows} -b  {input.mod5hmC} -c 11 -o mean > {output.mod5hmC_100kb}
-        bedtools map -a {input.chr_windows} -b  {input.mod5mC} -c 11 -o mean > {output.mod5mC_100kb}
+        bedtools map -a {input.chr_windows} -b  {input.bed} -c 11 -o mean > {output.bed_100kb}
         """
-    
 # ### separate bams for all chromosomes in reference
 # rule create_bam_for_chromosome:
 #     input: 
