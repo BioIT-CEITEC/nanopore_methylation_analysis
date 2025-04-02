@@ -32,7 +32,7 @@ if config["5mC_methylation"]:
 ##### Target rules #####
 rule all:
     input:
-        expand("methylation/{sample_name}/{sample_name}_filtered_{mod_name}.bed", mod_name = METHYLATION.keys()),
+        expand("methylation/{sample_name}/{sample_name}_filtered_{mod_name}.bed", sample_name = sample_tab.sample_name, mod_name = METHYLATION.keys()),
         expand("methylation/{sample_name}/{sample_name}_6mA_100kb.bed", sample_name = sample_tab.sample_name)
 
 
