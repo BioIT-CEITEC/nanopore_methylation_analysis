@@ -57,7 +57,7 @@ rule filter_modifications:
     output: 
         filtered = "methylation/{sample_name}/{sample_name}_filtered_{mod_name}.bed"
     params: 
-        mod_char = lambda wildcards: METHYLATION[wildcards.mod_name]
+        mod_char = lambda wildcards: METHYLATION[wildcards.mod_name]cd 
     shell:
         """
         awk '$4 == "{params.mod_char}" && $11 > 5 && $12 >= 2' {input.bed} >  {output.filtered}
