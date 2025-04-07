@@ -9,7 +9,11 @@
     ],
     "outputs":[
       "methylation/{sample}/{sample}_filtered*",
-      "methylation/{sample}/{sample}*100kb.bed"
+      "methylation/{sample}/{sample}*100kb.bed",
+      "methylation/{sample}/{sample}_genes-stats.tsv", 
+      "methylation/{sample}/{sample}_genes-stats_filtered.tsv",
+      "methylation/chrom.sizes",
+      "methylation/chr_windows.bed"
     ],
     "run_parameters": {
       "cpu": 30,

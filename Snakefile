@@ -119,6 +119,9 @@ rule modkit_stats:
         awk '$6 != 0 || $9 != 0 || $12 != 0' {output.tsv} > {output.tsv_filtered}
         """
 
+rule differential_methylation_scoring:
+    
+
 # ### separate bams for all chromosomes in reference
 # rule create_bam_for_chromosome:
 #     input: 
