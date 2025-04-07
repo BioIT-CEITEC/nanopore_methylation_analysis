@@ -112,15 +112,16 @@ rule modkit_stats:
         # Check if the .bed.gz file already exists, if not, bgzip the .bed file
         if [ ! -f {params.bed}.gz ]; then
             bgzip {params.bed}
+            tabix -p bed {params.bed}.gz
+
         fi
         
-        tabix -p bed {params.bed}.gz
         modkit stats {params.bed}.gz --min-coverage 5 --regions {input.gene_region} --out-table {output.tsv}
         awk '$6 != 0 || $9 != 0 || $12 != 0' {output.tsv} > {output.tsv_filtered}
         """
 
-rule differential_methylation_scoring:
-    
+# rule differential_methylation_scoring:
+
 
 # ### separate bams for all chromosomes in reference
 # rule create_bam_for_chromosome:
