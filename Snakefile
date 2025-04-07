@@ -100,16 +100,23 @@ rule create_genes_region_bed:
 rule modkit_stats:
     input:
         gene_region = "methylation/genes.bed",
-        bed = "methylation/{sample_name}/{sample_name}_modkit.bed"
     output:
-        tsv = "methylation/{sample_name}/{sample_name}_genes-stats.tsv"
+        tsv = "methylation/{sample_name}/{sample_name}_genes-stats.tsv",
+        tsv_filtered = "methylation/{sample_name}/{sample_name}_genes-stats_filtered.tsv"
+    params:
+        bed = "methylation/{sample_name}/{sample_name}_modkit.bed"
     conda: 
         "envs/methylation.yaml"
     shell:
         """
-        bgzip {input.bed}
-        tabix -p bed {input.bed}.gz
-        modkit stats {input.bed} --min-coverage 5 --regions {input.gene_region} --out-table {output.tsv}
+        # Check if the .bed.gz file already exists, if not, bgzip the .bed file
+        if [ ! -f {params.bed}.gz ]; then
+            bgzip {params.bed}
+        fi
+        
+        tabix -p bed {params.bed}.gz
+        modkit stats {params.bed}.gz --min-coverage 5 --regions {input.gene_region} --out-table {output.tsv}
+        awk '$6 != 0 || $9 != 0 || $12 != 0' {output.tsv} > {output.tsv_filtered}
         """
 
 # ### separate bams for all chromosomes in reference
