@@ -33,7 +33,8 @@ if config["5mC_methylation"]:
 rule all:
     input:
         expand("methylation/{sample_name}/{sample_name}_filtered_{mod_name}.bed", sample_name = sample_tab.sample_name, mod_name = METHYLATION.keys()),
-        expand("methylation/{sample_name}/{sample_name}_6mA_100kb.bed", sample_name = sample_tab.sample_name)
+        expand("methylation/{sample_name}/{sample_name}_6mA_100kb.bed", sample_name = sample_tab.sample_name),
+        expand("methylation/{sample_name}/{sample_name}_genes-stats.tsv", sample_name = sample_tab.sample_name)
 
 
 rule create_100kb_windows:
@@ -59,7 +60,7 @@ rule filter_modifications:
         mod_char = lambda wildcards: METHYLATION[wildcards.mod_name]
     shell:
         """
-        awk '$4 == {params.mod_char} && $11 > 5 && $12 >= 2' {input.bed} >  {output.filtered}
+        awk '$4 == "{params.mod_char}" && $11 > 5 && $12 >= 2' {input.bed} >  {output.filtered}
         """
 
 rule create_bedgraph:
@@ -69,7 +70,7 @@ rule create_bedgraph:
         bed_graph = "methylation/{sample_name}/{sample_name}_filtered_{mod_name}.bedgraph"
     shell:
         """
-        awk 'BEGIN {OFS="\t"} {print $1, $2, $3, $11}' {input.filtered} >  {output.bed_graph}
+        awk 'BEGIN {{OFS="\t"}} {{print $1, $2, $3, $11}}' {input.filtered} >  {output.bed_graph}
         """
 
 rule compute_methylation_in_100kbSwindows:
@@ -84,6 +85,33 @@ rule compute_methylation_in_100kbSwindows:
         """
         bedtools map -a {input.chr_windows} -b  {input.bed} -c 11 -o mean > {output.bed_100kb}
         """
+
+rule create_genes_region_bed:
+    input: 
+        ref_gtf = config["organism_gtf"]
+    output:
+       "methylation/genes.bed"
+    shell:
+        """ 
+        awk '$3 == "gene"' {input.ref_gtf} | \
+        awk 'BEGIN{{OFS="\t"}} {{split($9,a,";"); print $1, $4-1, $5, a[1], ".", $7}}' > {output}
+        """
+
+rule modkit_stats:
+    input:
+        gene_region = "methylation/genes.bed",
+        bed = "methylation/{sample_name}/{sample_name}_modkit.bed"
+    output:
+        tsv = "methylation/{sample_name}/{sample_name}_genes-stats.tsv"
+    conda: 
+        "envs/methylation.yaml"
+    shell:
+        """
+        bgzip {input.bed}
+        tabix -p bed {input.bed}.gz
+        modkit stats {input.bed} --min-coverage 5 --regions {input.gene_region} --out-table {output.tsv}
+        """
+
 # ### separate bams for all chromosomes in reference
 # rule create_bam_for_chromosome:
 #     input: 
