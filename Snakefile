@@ -33,7 +33,8 @@ if config["5mC_methylation"]:
 rule all:
     input:
         expand("methylation/{sample_name}/{sample_name}_filtered_{mod_name}.bed", sample_name = sample_tab.sample_name, mod_name = METHYLATION.keys()),
-        expand("methylation/{sample_name}/{sample_name}_6mA_100kb.bed", sample_name = sample_tab.sample_name),
+        expand("methylation/{sample_name}/{sample_name}_filtered_{mod_name}.bedgraph", sample_name = sample_tab.sample_name, mod_name = METHYLATION.keys()),       
+        expand("methylation/{sample_name}/{sample_name}_{mod_name}_100kb.bed", sample_name = sample_tab.sample_name, mod_name = METHYLATION.keys()),
         expand("methylation/{sample_name}/{sample_name}_genes-stats.tsv", sample_name = sample_tab.sample_name)
 
 

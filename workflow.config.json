@@ -10,6 +10,8 @@
     "outputs":[
       "methylation/{sample}/{sample}_filtered*",
       "methylation/{sample}/{sample}*100kb.bed",
+      "methylation/{sample}/{sample}_modkit.bed.gz",
+      "methylation/{sample}/{sample}_modkit.bed.gz.tbi",
       "methylation/{sample}/{sample}_genes-stats.tsv", 
       "methylation/{sample}/{sample}_genes-stats_filtered.tsv",
       "methylation/chrom.sizes",
