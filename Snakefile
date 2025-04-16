@@ -34,7 +34,7 @@ WINDOWS_SIZE = config["windows_size"]
 ##### Target rules #####
 def input_genes_statistic(wildcard):
     if config["compare_genes"]:
-        expand("methylation/{sample_name}/{sample_name}_genes-stats.tsv", sample_name = sample_tab.sample_name)
+        return expand("methylation/{sample_name}/{sample_name}_genes-stats.tsv", sample_name = sample_tab.sample_name)
 
 rule all:
     input:
