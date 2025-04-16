@@ -33,16 +33,19 @@
     "6mA_methylation"
   ],
   "gui_params" : {
-    "windows_size": {
-      "label": "Size of windows for mean methylations, default 100kb",
-      "type": "int",
-      "default": 100000
+    "detailed" : {
+      "windows_size": {
+        "label": "Size of windows for mean methylations, default 100kb",
+        "type": "int",
+        "default": 100000
     },
-    "compare_genes": {
-      "label": "Compare genes, needed gtf file",
-      "type": "bool",
-      "default": false
+      "compare_genes": {
+        "label": "Compare genes, needed gtf file",
+        "type": "bool",
+        "default": false
     }
+    }
+
   }
 }
 
