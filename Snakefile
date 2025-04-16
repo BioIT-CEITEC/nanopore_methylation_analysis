@@ -29,27 +29,35 @@ if config["5mC_methylation"]:
     METHYLATION["5mC"] = "m"
     METHYLATION["5hmC"] = "h"
 
+WINDOWS_SIZE = config["windows_size"]
+
 ##### Target rules #####
+def input_genes_statistic(wildcard):
+    if config["compare_genes"]:
+        expand("methylation/{sample_name}/{sample_name}_genes-stats.tsv", sample_name = sample_tab.sample_name)
+
 rule all:
     input:
         expand("methylation/{sample_name}/{sample_name}_filtered_{mod_name}.bed", sample_name = sample_tab.sample_name, mod_name = METHYLATION.keys()),
         expand("methylation/{sample_name}/{sample_name}_filtered_{mod_name}.bedgraph", sample_name = sample_tab.sample_name, mod_name = METHYLATION.keys()),       
-        expand("methylation/{sample_name}/{sample_name}_{mod_name}_100kb.bed", sample_name = sample_tab.sample_name, mod_name = METHYLATION.keys()),
-        expand("methylation/{sample_name}/{sample_name}_genes-stats.tsv", sample_name = sample_tab.sample_name)
+        expand("methylation/{sample_name}/{sample_name}_{mod_name}_windows.bed", sample_name = sample_tab.sample_name, mod_name = METHYLATION.keys()),
+        input_genes_statistic
 
 
-rule create_100kb_windows:
+rule create_windows:
     input:
         genome = config["organism_fasta"]
     output:
         chr_sizes = "methylation/chrom.sizes",
         chr_windows = "methylation/chr_windows.bed"
+    params: 
+        windows_size = WINDOWS_SIZE 
     conda: 
         "envs/methylation_change.yaml"
     shell:
         """
         cut -f1,2 {input.genome}.fai > {output.chr_sizes}
-        bedtools makewindows -g {output.chr_sizes} -w 100000 > {output.chr_windows}
+        bedtools makewindows -g {output.chr_sizes} -w {params.windows_size} > {output.chr_windows}
         """
 
 rule filter_modifications:
@@ -74,12 +82,12 @@ rule create_bedgraph:
         awk 'BEGIN {{OFS="\t"}} {{print $1, $2, $3, $11}}' {input.filtered} >  {output.bed_graph}
         """
 
-rule compute_methylation_in_100kbSwindows:
+rule compute_methylation_in_windows:
     input:      
         bed = "methylation/{sample_name}/{sample_name}_filtered_{mod_name}.bed",
         chr_windows = "methylation/chr_windows.bed"
     output:
-        bed_100kb = "methylation/{sample_name}/{sample_name}_{mod_name}_100kb.bed"
+        bed_100kb = "methylation/{sample_name}/{sample_name}_{mod_name}_windows.bed"
     conda: 
         "envs/methylation_change.yaml"
     shell:
