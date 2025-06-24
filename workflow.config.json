@@ -5,7 +5,7 @@
     "label":"Methylation analysis",
     "type":"methylation_analysis",
     "inputs":[
-      "methylation/{sample}/*"
+      "methylation/{sample}/*.bed"
     ],
     "outputs":[
       "methylation/*"

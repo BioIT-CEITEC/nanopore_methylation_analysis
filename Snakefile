@@ -63,6 +63,7 @@ rule create_windows:
         """
 
 rule filter_modifications:
+    # Filter modifications from modkit output and at least 2 reads
     input:      
         bed = "methylation/{sample_name}/{sample_name}_modkit.bed"
     output: 
@@ -105,7 +106,10 @@ rule create_genes_region_bed:
     shell:
         """ 
         awk '$3 == "gene"' {input.ref_gtf} | \
-        awk 'BEGIN{{OFS="\t"}} {{split($9,a,";"); print $1, $4-1, $5, a[1], ".", $7}}' > {output}
+        awk 'BEGIN{{OFS="\t"}} {
+            gsub(/^"_/, "", $10);
+            gsub(/";$/, "", $10);
+            print $1, $4-1, $5, $10, ".", $7 > {output}
         """
 
 rule modkit_stats:
