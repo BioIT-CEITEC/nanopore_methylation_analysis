@@ -95,7 +95,7 @@ rule compute_methylation_in_windows:
         "envs/methylation_change.yaml"
     shell:
         """
-        bedtools map -a {input.chr_windows} -b  {input.bed} -c 11 -o mean > {output.bed_100kb}
+        bedtools map -a {input.chr_windows} -b  {input.bed} -c 11 -o mean,count > {output.bed_100kb}
         """
 
 rule create_genes_region_bed:
