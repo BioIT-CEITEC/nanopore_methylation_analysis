@@ -8,10 +8,10 @@
       "methylation/{sample}/*.bed"
     ],
     "outputs":[
-
       "methylation/chrom.sizes",
       "methylation/chr_windows.bed",
-      "methylation/{sample}*"
+      "methylation/{sample}/{sample}*.bed",
+      "methylation/{sample}/{sample}*.bedgraph"
     ],
     "run_parameters": {
       "cpu": 30,
